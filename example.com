@@ -1,0 +1,103 @@
+fastcgi_cache_path /etc/nginx-cache levels=1:2 keys_zone=phpcache:100m inactive=60m;
+fastcgi_cache_key "$scheme$request_method$host$request_uri";
+# Limits
+limit_req_log_level    warn;
+limit_req_zone         $binary_remote_addr zone=login:10m rate=10r/m;
+
+server {	
+	listen 443 ssl http2;
+        listen [::]:443 ssl http2;
+
+        proxy_read_timeout 700;
+        proxy_connect_timeout 700;
+        proxy_send_timeout 700;
+        fastcgi_read_timeout 700;
+        proxy_max_temp_file_size 0;	
+
+	fastcgi_buffers 16 16k; 
+	fastcgi_buffer_size 32k;
+    
+	include    /etc/nginx/sites-available/examplehelper/cloudflare.conf;
+	
+	include    /etc/nginx/sites-available/examplehelper/keepalive.conf;
+
+	open_file_cache max=5000 inactive=60s;
+        open_file_cache_valid 30s;
+        open_file_cache_min_uses 2;
+        open_file_cache_errors on;
+
+	include /etc/nginx/sites-available/examplehelper/gzip.conf;
+
+	server_name example.com www.example.com;
+
+	index index.php index.html index.htm;
+
+	root /var/www/example.com/html;
+
+	access_log /var/www/example.com/logs/access.log;
+        error_log /var/www/example.com/logs/error.log;
+
+        server_tokens off;	
+
+	include /etc/nginx/sites-available/examplehelper/redirects.conf;   
+
+    	location / {
+        	try_files $uri $uri/ /index.php?$args;
+    	}
+
+	include /etc/nginx/sites-available/examplehelper/cache.conf;
+
+	include /etc/nginx/sites-available/examplehelper/general.conf;
+
+	include /etc/nginx/sites-available/examplehelper/wordpress.conf;	
+
+    location ~ \.php$ {
+        include snippets/fastcgi-php.conf;
+	proxy_busy_buffers_size   512k;
+ proxy_buffers   4 512k;
+ proxy_buffer_size   256k;
+	fastcgi_cache_bypass $no_cache;
+        fastcgi_no_cache $no_cache;
+        fastcgi_cache phpcache; # The name of the cache key-zone to use
+        fastcgi_cache_valid 200 30m; # What to cache: 'Code 200' responses, for half an hour
+        fastcgi_cache_methods GET HEAD; # What to cache: only GET and HEAD requests (not POST)
+        fastcgi_max_temp_file_size 0;
+        
+	add_header X-Fastcgi-Cache $upstream_cache_status; # Add header so we can see if the cache hits or misses
+        fastcgi_pass unix:/var/run/php/php8.1-fpm.sock;
+	include    /etc/nginx/sites-available/examplehelper/securityheaders.conf;
+     }
+
+    location ~ /\.ht {
+        deny all;
+    }
+
+
+
+    #listen 443 ssl; # managed by Certbot
+    ssl_certificate /etc/letsencrypt/live/www.example.com/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/www.example.com/privkey.pem; # managed by Certbot
+    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+
+
+}
+server {
+    if ($host = www.example.com) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+
+    if ($host = example.com) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+
+    listen 80;	
+    server_name example.com www.example.com;
+    return 404; # managed by Certbot
+
+
+
+
+}
