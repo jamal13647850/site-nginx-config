@@ -18,6 +18,7 @@ server {
 	fastcgi_buffer_size 32k;
     
 	include    /etc/nginx/sites-available/examplehelper/cloudflare.conf;
+	include    /etc/nginx/sites-available/examplehelper/arvancloud.conf;
 	
 	include    /etc/nginx/sites-available/examplehelper/keepalive.conf;
 
