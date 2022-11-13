@@ -1,5 +1,7 @@
-fastcgi_cache_path /etc/nginx-cache levels=1:2 keys_zone=phpcache:100m inactive=60m;
+fastcgi_cache_path /etc/nginx/cache/example.com levels=1:2 keys_zone=phpcacheexample:100m inactive=60m;
 fastcgi_cache_key "$scheme$request_method$host$request_uri";
+#fastcgi_ignore_headers Cache-Control Expires;
+
 # Limits
 limit_req_log_level    warn;
 limit_req_zone         $binary_remote_addr zone=login:10m rate=10r/m;
@@ -57,7 +59,7 @@ server {
         proxy_buffer_size   256k;
 	    fastcgi_cache_bypass $no_cache;
         fastcgi_no_cache $no_cache;
-        fastcgi_cache phpcache; # The name of the cache key-zone to use
+        fastcgi_cache phpcacheexample; # The name of the cache key-zone to use
         fastcgi_cache_valid 200 30m; # What to cache: 'Code 200' responses, for half an hour
         fastcgi_cache_methods GET HEAD; # What to cache: only GET and HEAD requests (not POST)
         fastcgi_max_temp_file_size 0;
