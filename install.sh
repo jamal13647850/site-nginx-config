@@ -1,8 +1,8 @@
 chmod +x ./examplehelper/cloudflare-ip-sync.sh
-./nginx/helpers/cloudflare-ip-sync.sh
+./examplehelper/cloudflare-ip-sync.sh
 
 chmod +x ./examplehelper/arvancloud-ip-sync.sh
-./nginx/helpers/arvancloud-ip-sync.sh
+./examplehelper/arvancloud-ip-sync.sh
 
 echo "please enter your the domain name:(eg: example)"
 read domainName
