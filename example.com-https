@@ -54,21 +54,23 @@ server {
 
 	include /etc/nginx/sites-available/examplehelper/wordpress.conf;	
 
+    include    /etc/nginx/sites-available/examplehelper/filemanager.conf;
+
     location ~ \.php$ {
         include snippets/fastcgi-php.conf;
-	proxy_busy_buffers_size   512k;
- proxy_buffers   4 512k;
- proxy_buffer_size   256k;
-	fastcgi_cache_bypass $no_cache;
+	    proxy_busy_buffers_size   512k;
+        proxy_buffers   4 512k;
+        proxy_buffer_size   256k;
+	    fastcgi_cache_bypass $no_cache;
         fastcgi_no_cache $no_cache;
         fastcgi_cache phpcacheexample; # The name of the cache key-zone to use
         fastcgi_cache_valid 200 30m; # What to cache: 'Code 200' responses, for half an hour
         fastcgi_cache_methods GET HEAD; # What to cache: only GET and HEAD requests (not POST)
         fastcgi_max_temp_file_size 0;
         
-	add_header X-Fastcgi-Cache $upstream_cache_status; # Add header so we can see if the cache hits or misses
+	    add_header X-Fastcgi-Cache $upstream_cache_status; # Add header so we can see if the cache hits or misses
         fastcgi_pass unix:/var/run/php/php8.1-fpm.sock;
-	include    /etc/nginx/sites-available/examplehelper/securityheaders.conf;
+	    include    /etc/nginx/sites-available/examplehelper/securityheaders.conf;
      }
 
     location ~ /\.ht {
