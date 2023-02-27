@@ -19,3 +19,9 @@ done
 
 echo "" >> $CLOUDFLARE_FILE_PATH;
 echo "real_ip_header CF-Connecting-IP;" >> $CLOUDFLARE_FILE_PATH;
+
+
+for i in `curl https://www.cloudflare.com/ips-v4`; do sudo csf -a $i; done
+
+for i in `curl https://www.cloudflare.com/ips-v4`; do sudo echo $i >> /etc/csf/csf.ignore; done
+
